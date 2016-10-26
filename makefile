@@ -154,19 +154,19 @@ test-admin-unit: ## Run the admin application unit tests with mocha
 		"./src/admin/js/**/*.spec.js"
 
 test-api-unit: ## Run the API unit tests with mocha
-	NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
-		--require=reify \
-		--require=async-to-gen/register \
-		--require=co-mocha \
-		"./src/api/{,!(e2e)/**/}*.spec*.js"
+	@NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
+        --require=reify \
+        --harmony-async-await \
+        --require=co-mocha \
+        "./src/api/{,!(e2e)/**/}*.spec*.js"
 
 test-api-functional: reset-test-database ## Run the API functional tests with mocha
-	NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
-		--require=reify \
-		--require=async-to-gen/register \
-		--require=co-mocha \
-		--recursive \
-		./src/api/e2e
+	@NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
+        --require=reify \
+        --harmony-async-await \
+        --require=co-mocha \
+        --recursive \
+        ./src/api/e2e
 
 test-frontend-unit: ## Run the frontend application unit tests with mocha
 	NODE_ENV=test ./node_modules/.bin/mocha \
