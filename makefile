@@ -90,8 +90,9 @@ run-dev: ## Run all applications in development environment (using webpack-dev-s
 	echo "Type 'make stop-dev' to stop the apps"
 
 restart-dev: ## Restart all applications in development environment
+	PM2_HOME=$(PM2_HOME) node_modules/.bin/pm2 restart bpm_admin-dev
+    PM2_HOME=$(PM2_HOME) node_modules/.bin/pm2 restart bpm_api-dev
 	PM2_HOME=$(PM2_HOME) node_modules/.bin/pm2 restart bpm_frontend-dev
-	PM2_HOME=$(PM2_HOME) node_modules/.bin/pm2 restart bpm_api-dev
 	echo "All apps restarted"
 
 stop-dev: ## Stop all applications in development environment
@@ -147,38 +148,39 @@ log-frontend-test: ## Display the logs of the frontend with PM2 in test environm
 
 # Tests ========================================================================
 test-admin-unit: ## Run the admin application unit tests with mocha
-	NODE_ENV=test ./node_modules/.bin/mocha \
+	NODE_ENV=test BABEL_ENV=test-unit ./node_modules/.bin/mocha \
 		--require=co-mocha \
 		--require='./src/admin/js/test.spec.js' \
 		--compilers="css:./src/common/e2e/lib/webpack-null-compiler,js:babel-core/register" \
 		"./src/admin/js/**/*.spec.js"
 
 test-api-unit: ## Run the API unit tests with mocha
-	@NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
-        --require=reify \
+	@NODE_ENV=test BABEL_ENV=node NODE_PORT=3010 ./node_modules/.bin/mocha \
+        --require=babel-register \
         --harmony-async-await \
         --require=co-mocha \
         "./src/api/{,!(e2e)/**/}*.spec*.js"
 
 test-api-functional: reset-test-database ## Run the API functional tests with mocha
-	@NODE_ENV=test NODE_PORT=3010 ./node_modules/.bin/mocha \
-        --require=reify \
+	@NODE_ENV=test BABEL_ENV=node NODE_PORT=3010 ./node_modules/.bin/mocha \
+	--require=babel-register \
         --harmony-async-await \
         --require=co-mocha \
         --recursive \
         ./src/api/e2e
 
 test-frontend-unit: ## Run the frontend application unit tests with mocha
-	NODE_ENV=test ./node_modules/.bin/mocha \
-		--require=co-mocha \
-		--require='./src/frontend/js/test.spec.js' \
-		--compilers="css:./src/common/e2e/lib/webpack-null-compiler,js:babel-core/register" \
-		"./src/frontend/js/**/*.spec.js"
+	NODE_ENV=test BABEL_ENV=test-unit ./node_modules/.bin/mocha \
+		--require=babel-register \
+        --require=co-mocha \
+        --require='./src/frontend/js/test.spec.js' \
+        --compilers="css:./src/common/e2e/lib/webpack-null-compiler,js:babel-core/register" \
+        "./src/frontend/js/**/*.spec.js"
 
 test-common-unit: ## Run the common directory unit tests with mocha
-	NODE_ENV=test ./node_modules/.bin/mocha \
-		--compilers="css:./src/common/e2e/lib/webpack-null-compiler,js:babel-core/register" \
-		"./src/common/{,**/}*.spec.js"
+	NODE_ENV=test BABEL_ENV=test-unit ./node_modules/.bin/mocha \
+        --compilers="css:./src/common/e2e/lib/webpack-null-compiler,js:babel-core/register" \
+        "./src/common/{,**/}*.spec.js"
 
 test-frontend-functional: reset-test-database load-test-fixtures ## Run the frontend applications functional tests with nightwatch
 	NODE_ENV=test make build-frontend
@@ -192,7 +194,7 @@ test-frontend-functional: reset-test-database load-test-fixtures ## Run the fron
 	PM2_HOME=$(PM2_HOME) node_modules/.bin/pm2 delete ./config/pm2_servers/test.json
 
 load-test-fixtures: ## Initialize the test database with fixtures
-	NODE_ENV=test ./node_modules/.bin/babel-node ./bin/loadFixtures.js
+	NODE_ENV=test node --require babel-register --harmony-async-await ./bin/loadFixtures.js
 
 test: ## Run all tests
 	-cp -n ./config/test-dist.js ./config/test.js
