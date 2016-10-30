@@ -1,8 +1,11 @@
 /* eslint no-param-reassign: off, max-len: off */
 import Koa from 'koa';
 import koaRoute from 'koa-route';
+import uuid from 'uuid';
 
-export default (queriesFactory, configuredMethods = {}) => {
+const generateUuid = () => uuid.v4();
+
+export default (queriesFactory, configuredMethods = {}, generateId = generateUuid) => {
     const app = new Koa();
     const defaultMethods = {
         GET: 'managed',
@@ -68,6 +71,8 @@ export default (queriesFactory, configuredMethods = {}) => {
     app.use(koaRoute.post('/', async (ctx, next) => {
         if (ctx.availableMethods.POST) {
             const data = ctx.data || ctx.request.body;
+            data.id = data.id || generateId();
+
             ctx.body = await queries.insertOne(data);
         }
 
@@ -80,7 +85,9 @@ export default (queriesFactory, configuredMethods = {}) => {
     app.use(koaRoute.post('/multi', async (ctx, next) => {
         if (ctx.availableMethods.POST) {
             const data = ctx.data || ctx.request.body;
-            ctx.body = await queries.batchInsert(data);
+            ctx.body = await queries.batchInsert(data.map(d => Object.assign({}, d, {
+                id: d.id || generateId(),
+            })));
         }
 
         if (ctx.availableMethods.POST !== 'managed') {

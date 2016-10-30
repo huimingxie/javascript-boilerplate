@@ -1,3 +1,4 @@
+import uuid from 'uuid';
 import orderQueries from './orderQueries';
 import orderProductsModel from '../order-products/orderProductModel';
 
@@ -23,8 +24,11 @@ function orderModel(client) {
     const insertOne = async (data) => {
         await client.begin();
 
+        const id = uuid.v4();
+
         try {
             const result = await orderClient.insertOne({
+                id,
                 customer_id: data.customer_id,
                 date: data.date,
                 reference: data.reference,
@@ -33,7 +37,11 @@ function orderModel(client) {
             });
 
             const orderProducts = data.products
-            .map(product => Object.assign({}, product, { order_id: data.id, product_id: product.id }));
+            .map(product => Object.assign({}, product, {
+                id: uuid.v4(),
+                order_id: id,
+                product_id: product.id,
+            }));
 
             if (orderProducts.length > 0) {
                 await orderProductsClient.batchInsert(orderProducts);

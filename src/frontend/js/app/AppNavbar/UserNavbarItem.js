@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 const UserNavbarItem = ({ user, signOut }) => (
-    <ul className="nav navbar-nav pull-xs-right">
+    <ul className="nav navbar-nav float-xs-right">
         <li className="nav-item dropdown">
             <a
                 aria-expanded="false"
@@ -13,7 +13,7 @@ const UserNavbarItem = ({ user, signOut }) => (
                 {user.email}
             </a>
             <div className="dropdown-menu">
-                <a className="dropdown-item" href="/sign-out" onClick={signOut} role="button">Sign out</a>
+                <a className="dropdown-item" onClick={signOut} role="button">Sign out</a>
             </div>
         </li>
     </ul>
@@ -21,7 +21,7 @@ const UserNavbarItem = ({ user, signOut }) => (
 
 UserNavbarItem.propTypes = {
     signOut: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired, // eslint-disable-line
+    user: PropTypes.object.isRequired,
 };
 
 export default UserNavbarItem;
